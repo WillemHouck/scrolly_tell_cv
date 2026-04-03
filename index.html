@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Willem Houck — CV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --forest: #8fbf8a;
+      --earth: #c4a882;
+      --leaf: #5a9a6a;
+      --mud: #a08a6a;
+      --cream: #1a1a1a;
+      --light: #111111;
+      --text: #e0ddd8;
+      --text-light: #9a9590;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--light);
+      overflow-x: hidden;
+    }
+
+    /* ── Hero / Running sequence ── */
+    #hero {
+      position: relative;
+      height: 280vh;
+    }
+
+    #hero-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #frame-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.35) 50%,
+        rgba(17,17,17,0.85) 90%,
+        rgba(17,17,17,1) 100%
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+
+    #hero-name {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    #hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      font-weight: 300;
+      margin-top: 0.5em;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+      color: rgba(255,255,255,0.85);
+    }
+
+    #scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      opacity: 0;
+      transition: opacity 0.8s ease 0.6s;
+    }
+
+    #scroll-hint span {
+      display: block;
+      margin-top: 0.5rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    .hero-visible #hero-name,
+    .hero-visible #hero-subtitle,
+    .hero-visible #scroll-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Progress bar ── */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--leaf);
+      width: 0%;
+      z-index: 100;
+      transition: width 0.1s linear;
+    }
+
+    /* ── Section styling ── */
+    .cv-section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--leaf);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--leaf);
+      opacity: 0.2;
+    }
+
+    /* ── Timeline entries ── */
+    .entry {
+      position: relative;
+      padding-left: 2rem;
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .entry.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .entry::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--leaf);
+    }
+
+    .entry::after {
+      content: '';
+      position: absolute;
+      left: 3.5px;
+      top: 1.2rem;
+      width: 1px;
+      height: calc(100% + 1.5rem);
+      background: linear-gradient(to bottom, var(--leaf), transparent);
+    }
+
+    .entry:last-child::after {
+      display: none;
+    }
+
+    .entry-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .entry-company {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--forest);
+    }
+
+    .entry-duration {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--mud);
+    }
+
+    .entry-role {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--earth);
+      margin-bottom: 0.15rem;
+    }
+
+    .entry-location {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .entry ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .entry li {
+      position: relative;
+      padding-left: 1.2rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .entry li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--mud);
+      opacity: 0.6;
+    }
+
+    /* ── Divider with running icon ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--mud), transparent);
+      opacity: 0.2;
+    }
+
+    .divider-icon {
+      margin: 0 1.5rem;
+      font-size: 1.2rem;
+      color: var(--leaf);
+      opacity: 0.6;
+    }
+
+    /* ── Intro text section ── */
+    .intro-section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .intro-text {
+      font-size: 1.3rem;
+      line-height: 1.8;
+      font-weight: 300;
+      color: var(--earth);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .intro-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-light);
+      font-size: 0.8rem;
+    }
+
+    footer .trail-emoji {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* ── Small running figure (side) ── */
+    #running-indicator {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--leaf);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 50;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    #running-indicator.visible {
+      opacity: 1;
+    }
+
+    #running-indicator img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Education chart ── */
+    #edu-chart-section {
+      position: relative;
+      height: 500vh;
+    }
+
+    #edu-chart-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .edu-chart-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--leaf);
+      margin-bottom: 2rem;
+      align-self: flex-start;
+      max-width: 720px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .edu-chart-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--leaf);
+      opacity: 0.2;
+    }
+
+    #edu-chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 60vh;
+      max-height: 420px;
+    }
+
+    /* Y-axis */
+    .chart-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 40px;
+      width: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 8px;
+    }
+
+    .chart-y-label {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-y-title {
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: rotate(-90deg) translateX(-50%);
+      transform-origin: 0 0;
+      font-size: 0.65rem;
+      color: var(--text-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* X-axis */
+    .chart-x-axis {
+      position: absolute;
+      left: 50px;
+      right: 0;
+      bottom: 0;
+      height: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    .chart-x-label {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      text-align: center;
+      width: 33.33%;
+    }
+
+    /* Grid lines */
+    .chart-grid {
+      position: absolute;
+      left: 50px;
+      right: 0;
+      top: 0;
+      bottom: 40px;
+    }
+
+    .chart-grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* Bars area */
+    .chart-bars {
+      position: absolute;
+      left: 50px;
+      right: 0;
+      top: 0;
+      bottom: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+    }
+
+    .chart-bar-wrapper {
+      width: 28%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .chart-bar {
+      width: 70%;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: stretch;
+    }
+
+    .block {
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-bottom: none;
+      transition: background-color 0.4s ease, border-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .block:first-child {
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+      border-radius: 0 0 3px 3px;
+    }
+
+    .block:last-child {
+      border-radius: 3px 3px 0 0;
+    }
+
+    .block.hidden {
+      height: 0 !important;
+      border: none !important;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      visibility: hidden;
+    }
+
+    .block-label {
+      position: relative;
+      font-size: 0.55rem;
+      font-weight: 500;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      text-align: center;
+      line-height: 1.3;
+      padding: 2px 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .block-label.wrap-label {
+      width: auto;
+      line-height: 1.3;
+    }
+
+    .block.active .block-label {
+      opacity: 1;
+    }
+
+    .block.settled .block-label {
+      opacity: 0;
+    }
+
+    .block.settled.key-block .block-label {
+      opacity: 0.65;
+    }
+
+    /* Bar colors */
+    .bar-bachelor .block {
+      background: rgba(90, 154, 106, 0.25);
+    }
+    .bar-bachelor .block.active {
+      background: rgba(90, 154, 106, 0.7);
+    }
+    .bar-bachelor .block.settled {
+      background: rgba(90, 154, 106, 0.35);
+    }
+
+    .bar-minor .block {
+      background: rgba(196, 168, 130, 0.25);
+    }
+    .bar-minor .block.active {
+      background: rgba(196, 168, 130, 0.7);
+    }
+    .bar-minor .block.settled {
+      background: rgba(196, 168, 130, 0.35);
+    }
+
+    .bar-master .block {
+      background: rgba(120, 160, 200, 0.25);
+    }
+    .bar-master .block.active {
+      background: rgba(120, 160, 200, 0.7);
+    }
+    .bar-master .block.settled {
+      background: rgba(120, 160, 200, 0.35);
+    }
+
+    /* Legend */
+    .chart-legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      color: var(--text-light);
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .legend-swatch.bachelor { background: rgba(90, 154, 106, 0.5); }
+    .legend-swatch.minor { background: rgba(196, 168, 130, 0.5); }
+    .legend-swatch.master { background: rgba(120, 160, 200, 0.5); }
+
+    /* Thesis block is taller */
+    .block.thesis-block {
+      border-style: dashed;
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .cv-section {
+        padding: 4rem 1.25rem;
+      }
+      .entry {
+        padding-left: 1.5rem;
+      }
+      #edu-chart-container {
+        height: 55vh;
+        max-height: 350px;
+      }
+      .block-label {
+        font-size: 0.55rem;
+      }
+    }
+
+    /* ── Career Path / Trail section ── */
+    #career-path-section {
+      position: relative;
+      height: 1200vh;
+    }
+
+    #career-path-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left: map view */
+    .trail-map-panel {
+      width: 55%;
+      min-width: 320px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 2rem;
+    }
+
+    .trail-map-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-height: 100%;
+    }
+
+    .trail-map-intro {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      font-weight: 300;
+      color: var(--earth);
+      margin-bottom: 1rem;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    #trail-svg {
+      width: 100%;
+      height: 55vh;
+      max-height: 420px;
+    }
+
+    .trail-path-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.08);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .trail-path-active {
+      fill: none;
+      stroke: var(--leaf);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .trail-runner-dot {
+      fill: var(--leaf);
+      filter: drop-shadow(0 0 6px rgba(90, 154, 106, 0.6));
+    }
+
+    .trail-start-marker, .trail-end-marker {
+      font-size: 10px;
+      fill: var(--text-light);
+    }
+
+    /* Right: career info panel */
+    .trail-info-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 3rem 2rem 2rem;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      overflow-y: auto;
+    }
+
+    .trail-info-panel .section-label {
+      margin-bottom: 1.5rem;
+    }
+
+    .trail-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .trail-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .trail-stat-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--forest);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .trail-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Elevation profile mini chart */
+    .elevation-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 0.25rem;
+    }
+
+    .elevation-labels {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .elevation-labels span {
+      font-size: 8px;
+      color: var(--text-light);
+      line-height: 1;
+    }
+
+    #elevation-profile {
+      height: 80px;
+      margin-left: 30px;
+      width: calc(100% - 30px);
+    }
+
+    .elev-path {
+      fill: rgba(90, 154, 106, 0.15);
+      stroke: none;
+    }
+
+    .elev-path-active {
+      fill: rgba(90, 154, 106, 0.4);
+      stroke: none;
+    }
+
+    .elev-line {
+      fill: none;
+      stroke: var(--leaf);
+      stroke-width: 1;
+      opacity: 0.4;
+    }
+
+    .elev-line-active {
+      fill: none;
+      stroke: var(--leaf);
+      stroke-width: 1.5;
+    }
+
+    .elev-label {
+      font-size: 8px;
+      fill: var(--text-light);
+    }
+
+    /* Career milestones placeholder */
+    .career-milestones {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .milestone {
+      padding: 0.75rem 1rem;
+      border-left: 2px solid rgba(255,255,255,0.08);
+      opacity: 0.3;
+      transition: opacity 0.4s ease, border-color 0.4s ease;
+    }
+
+    .milestone.active {
+      opacity: 1;
+      border-color: var(--leaf);
+    }
+
+    .milestone-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--forest);
+    }
+
+    .milestone-role {
+      font-size: 0.78rem;
+      color: var(--earth);
+      margin-top: 0.15rem;
+    }
+
+    .milestone-sub {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      margin-top: 0.1rem;
+    }
+
+    .milestone-skills-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+    }
+
+    .milestone-skills {
+      margin-top: 0.3rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .milestone-skills li {
+      font-size: 0.75rem;
+      color: var(--text);
+      line-height: 1.5;
+      padding-left: 0.8rem;
+      position: relative;
+      margin-bottom: 0.2rem;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .milestone-skills li.skill-active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .milestone-skills li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--leaf);
+      opacity: 0.6;
+    }
+
+    .milestone-detail {
+      display: none;
+    }
+
+    .milestone.active .milestone-detail {
+      display: block;
+    }
+
+    /* Trail intro */
+    .trail-intro {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .trail-intro-text {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      font-weight: 300;
+      color: var(--earth);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .trail-intro-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .trail-race-name {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      #career-path-sticky {
+        flex-direction: column;
+      }
+      .trail-info-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding: 1.5rem;
+        max-height: 40vh;
+      }
+      .trail-map-panel {
+        max-height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <!-- Hero: scroll-driven running sequence -->
+  <section id="hero">
+    <div id="hero-sticky">
+      <canvas id="frame-canvas"></canvas>
+      <div id="hero-overlay">
+        <h1 id="hero-name">Willem Houck</h1>
+        <p id="hero-subtitle">Data Scientist · Trail Runner · Problem Solver</p>
+        <p id="scroll-hint">Scroll to explore <span>↓</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro text -->
+  <div class="intro-section">
+    <p class="intro-text">
+      Like a trail run through uncharted terrain, my career has been about finding
+      the best path forward — navigating obstacles, building momentum, and never
+      losing sight of the finish line. Every project is a new trail to explore.
+    </p>
+  </div>
+
+  <!-- Education chart (scroll-driven) -->
+  <section id="edu-chart-section">
+    <div id="edu-chart-sticky">
+      <div class="edu-chart-title">Education</div>
+      <div id="edu-chart-container">
+        <div class="chart-y-title">Study Points</div>
+        <div class="chart-y-axis" id="y-axis"></div>
+        <div class="chart-grid" id="chart-grid"></div>
+        <div class="chart-bars">
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar bar-bachelor" id="bar-bachelor"></div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar bar-minor" id="bar-minor"></div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar bar-master" id="bar-master"></div>
+          </div>
+        </div>
+        <div class="chart-x-axis">
+          <div class="chart-x-label">BSc Econometrics<br>&amp; Operations Research</div>
+          <div class="chart-x-label">Minor Modern<br>Physics</div>
+          <div class="chart-x-label">MSc Econometrics<br>&amp; Management Science</div>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><em>Labeled blocks are key courses</em></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">🌲</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Career Path intro -->
+  <div class="trail-intro">
+    <p class="trail-intro-text">
+      Every career is a race — some stretches are uphill grinds, others are
+      exhilarating descents. Follow the trail of my favourite ultra, the
+      Wildstrubel in the Swiss Alps, as it maps to my professional journey.
+    </p>
+    <p class="trail-race-name">Wildstrubel Ultra · 69 km · 4246m elevation gain</p>
+  </div>
+
+  <!-- Career Path: scroll-driven trail -->
+  <section id="career-path-section">
+    <div id="career-path-sticky">
+      <div class="trail-map-panel">
+        <div class="trail-map-inner">
+          <p class="trail-map-intro">
+            Every career is a race — some stretches are uphill grinds, others are
+            exhilarating descents. Follow the trail of my favourite ultra, the
+            Wildstrubel in the Swiss Alps, as it maps to my professional journey.
+          </p>
+          <svg id="trail-svg" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+            <path class="trail-path-bg" id="trail-bg"/>
+            <path class="trail-path-active" id="trail-active"/>
+            <circle class="trail-runner-dot" id="trail-dot" r="5" cx="0" cy="0"/>
+            <text class="trail-start-marker" id="trail-start-label">START</text>
+            <text class="trail-end-marker" id="trail-end-label">FINISH</text>
+          </svg>
+          <div class="trail-stats">
+            <div class="trail-stat">
+              <span class="trail-stat-value" id="stat-km">0.0</span>
+              <span class="trail-stat-label">km along trail</span>
+            </div>
+            <div class="trail-stat">
+              <span class="trail-stat-value" id="stat-elev">0</span>
+              <span class="trail-stat-label">elevation gain (m)</span>
+            </div>
+          </div>
+          <div class="elevation-wrapper">
+            <div class="elevation-labels">
+              <span>2748m</span>
+              <span>1066m</span>
+            </div>
+            <svg id="elevation-profile" viewBox="0 0 300 80" preserveAspectRatio="none">
+              <path class="elev-path" id="elev-area"/>
+              <path class="elev-path-active" id="elev-area-active"/>
+              <path class="elev-line" id="elev-line"/>
+              <path class="elev-line-active" id="elev-line-active"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="trail-info-panel">
+        <div class="section-label">Career Path</div>
+        <div class="career-milestones" id="milestones">
+          <!-- Milestones will be populated by JS or added later -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="trail-emoji">👟</span>
+    Keep running. Keep learning.
+  </footer>
+
+  <!-- Small running thumbnail that follows you -->
+  <div id="running-indicator">
+    <img src="images/ezgif-frame-001.png" alt="running" id="indicator-img">
+  </div>
+
+  <script>
+    // ── Frame sequence setup ──
+    const FRAME_COUNT = 60;
+    const canvas = document.getElementById('frame-canvas');
+    const ctx = canvas.getContext('2d');
+    const images = [];
+    let loadedCount = 0;
+
+    function padNum(n) {
+      return String(n).padStart(3, '0');
+    }
+
+    function setCanvasSize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function drawFrame(index) {
+      const img = images[index];
+      if (!img || !img.complete) return;
+
+      const cw = canvas.width;
+      const ch = canvas.height;
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+
+      const scale = Math.max(cw / iw, ch / ih);
+      const w = iw * scale;
+      const h = ih * scale;
+      const x = (cw - w) / 2;
+      const y = (ch - h) / 2;
+
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.drawImage(img, x, y, w, h);
+    }
+
+    for (let i = 1; i <= FRAME_COUNT; i++) {
+      const img = new Image();
+      img.src = `images/ezgif-frame-${padNum(i)}.png`;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === 1) {
+          setCanvasSize();
+          drawFrame(0);
+          document.getElementById('hero-overlay').classList.add('hero-visible');
+        }
+      };
+      images.push(img);
+    }
+
+    window.addEventListener('resize', () => {
+      setCanvasSize();
+      drawFrame(currentFrame);
+      // Recalculate block heights on resize
+      allBlocks.forEach(block => {
+        block.el.style.height = (block.points * pxPerPoint()) + 'px';
+      });
+    });
+
+    let currentFrame = 0;
+    const hero = document.getElementById('hero');
+
+    // ── Education chart setup ──
+    const MAX_POINTS = 180;
+    // Dynamically compute chart height from the container
+    function getChartHeight() {
+      const container = document.getElementById('edu-chart-container');
+      return container.clientHeight - 40; // minus x-axis
+    }
+
+    // Block data: { name, points, isKey, isThesis }
+    const bachelorBlocks = [
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: 'Advanced Statistics', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: 'Macroeconomics', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: 'Time Series Analysis', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: 'Combinatorial Optimization', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: '', points: 6 },
+      { name: 'Thesis: Comparison of Machine Learning models for predicting football matches', points: 24, isKey: true, isThesis: true },
+    ];
+
+    const minorBlocks = [
+      { name: '', points: 6 },
+      { name: 'Theory of Relativity', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: 'Quantum Mechanics', points: 6, isKey: true },
+      { name: '', points: 6 },
+    ];
+
+    const masterBlocks = [
+      { name: '', points: 6, isKey: true },
+      { name: 'Bayesian Statistics', points: 6, isKey: true },
+      { name: '', points: 6, isKey: true },
+      { name: 'Machine Learning', points: 6, isKey: true },
+      { name: '', points: 6 },
+      { name: '', points: 6, isKey: true },
+      { name: 'Thesis: Using Transfer Learning to overcome data scarcity in image recognition', points: 24, isKey: true, isThesis: true },
+    ];
+
+    const allBlocks = [
+      ...bachelorBlocks.map(b => ({ ...b, bar: 'bachelor' })),
+      ...minorBlocks.map(b => ({ ...b, bar: 'minor' })),
+      ...masterBlocks.map(b => ({ ...b, bar: 'master' })),
+    ];
+
+    const TOTAL_BLOCKS = allBlocks.length;
+
+    // Group blocks per bar for parallel scrolling
+    const barGroups = {
+      bachelor: allBlocks.filter(b => b.bar === 'bachelor'),
+      minor: allBlocks.filter(b => b.bar === 'minor'),
+      master: allBlocks.filter(b => b.bar === 'master'),
+    };
+
+    function pxPerPoint() {
+      return getChartHeight() / MAX_POINTS;
+    }
+
+    // Build Y-axis labels
+    function buildYAxis() {
+      const yAxis = document.getElementById('y-axis');
+      const steps = [180, 150, 120, 90, 60, 30, 0];
+      steps.forEach(val => {
+        const label = document.createElement('div');
+        label.className = 'chart-y-label';
+        label.textContent = val;
+        yAxis.appendChild(label);
+      });
+    }
+
+    // Build grid lines
+    function buildGrid() {
+      const grid = document.getElementById('chart-grid');
+      const steps = [0, 30, 60, 90, 120, 150, 180];
+      steps.forEach(val => {
+        const line = document.createElement('div');
+        line.className = 'chart-grid-line';
+        line.style.bottom = (val / MAX_POINTS * 100) + '%';
+        grid.appendChild(line);
+      });
+    }
+
+    // Build blocks in DOM (all hidden initially)
+    function buildBlocks() {
+      const bars = {
+        bachelor: document.getElementById('bar-bachelor'),
+        minor: document.getElementById('bar-minor'),
+        master: document.getElementById('bar-master'),
+      };
+
+      allBlocks.forEach((block, i) => {
+        const el = document.createElement('div');
+        el.className = 'block hidden';
+        el.dataset.index = i;
+        if (block.isThesis) el.classList.add('thesis-block');
+        if (block.isKey) el.classList.add('key-block');
+
+        const heightPx = block.points * pxPerPoint();
+        el.style.height = heightPx + 'px';
+
+        if (block.name) {
+          const label = document.createElement('div');
+          label.className = 'block-label';
+          if (block.isThesis) label.classList.add('wrap-label');
+          label.textContent = block.name;
+          el.appendChild(label);
+        }
+
+        bars[block.bar].appendChild(el);
+        block.el = el;
+      });
+    }
+
+    buildYAxis();
+    buildGrid();
+    buildBlocks();
+
+    // ── Scroll logic ──
+    const eduSection = document.getElementById('edu-chart-section');
+
+    function updateEduChart() {
+      const rect = eduSection.getBoundingClientRect();
+      const scrollable = eduSection.offsetHeight - window.innerHeight;
+      const rawProgress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+
+      // Reserve first 5% and last 5% of scroll for empty/full chart
+      const progress = Math.min(Math.max((rawProgress - 0.05) / 0.9, 0), 1);
+
+      // Grow all three bars in parallel
+      Object.values(barGroups).forEach(blocks => {
+        const count = blocks.length;
+        const activeIndex = Math.floor(progress * (count + 1)) - 1;
+
+        blocks.forEach((block, i) => {
+          if (i < activeIndex) {
+            block.el.classList.remove('hidden', 'active');
+            block.el.classList.add('settled');
+          } else if (i === activeIndex && activeIndex < count) {
+            block.el.classList.remove('hidden', 'settled');
+            block.el.classList.add('active');
+          } else {
+            block.el.classList.add('hidden');
+            block.el.classList.remove('active', 'settled');
+          }
+        });
+      });
+    }
+
+    function updateFrame() {
+      const rect = hero.getBoundingClientRect();
+      const scrollable = hero.offsetHeight - window.innerHeight;
+      const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+      const frameIndex = Math.min(Math.floor(progress * FRAME_COUNT), FRAME_COUNT - 1);
+
+      // DEBUG: log frame transitions
+      if (frameIndex !== currentFrame) {
+        console.log(`Frame: ${currentFrame} -> ${frameIndex} (progress: ${progress.toFixed(3)})`);
+        currentFrame = frameIndex;
+        drawFrame(currentFrame);
+      }
+
+      // Update small running indicator
+      const indicator = document.getElementById('running-indicator');
+      const indicatorImg = document.getElementById('indicator-img');
+      if (-rect.top > window.innerHeight * 0.5) {
+        indicator.classList.add('visible');
+        // Mirror the hero canvas frame
+        indicatorImg.src = `images/ezgif-frame-${padNum(currentFrame + 1)}.png`;
+      } else {
+        indicator.classList.remove('visible');
+      }
+
+      // Progress bar
+      const pageProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      document.getElementById('progress-bar').style.width = (pageProgress * 100) + '%';
+
+      // Education chart
+      updateEduChart();
+
+      // Trail path
+      updateTrail();
+    }
+
+    // ── Intersection Observer for entries ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.entry, .intro-text, .trail-intro-text').forEach(el => {
+      observer.observe(el);
+    });
+
+    // ── Trail / Career Path setup ──
+    let trailPoints = [];
+    let trailReady = false;
+    const careerSection = document.getElementById('career-path-section');
+    const TOTAL_DIST_KM = 69.1;
+
+    // Career milestones placed along the trail — proportional to time spent
+    // Korn Ferry 1yr, Sobolt 1.5yr, 510 0.5yr, Rabobank 4yr = 7yr total
+    // Adjusted: shorter stints slightly inflated, Rabobank compressed
+    const milestones = [
+      { pct: 0.00, title: 'Korn Ferry', role: 'Working Student, Rewards & Benefits', sub: 'Sep 2018 – Aug 2019 · Amsterdam', skills: ['The way of working in a consulting company', 'Hands-on programming experience'] },
+      { pct: 0.18, title: 'Sobolt (AI start-up)', role: 'Data Scientist, Computer Vision', sub: 'Apr 2020 – Sep 2021 · Rotterdam', skills: ['The development of deep learning models in production', 'Linux-based development & version control', 'End-to-end model development'] },
+      { pct: 0.40, title: '510 — Red Cross', role: 'Data Scientist, Remote Sensing', sub: 'Dec 2021 – Apr 2022 · The Hague', skills: ['Guiding interns in deep learning model development'] },
+      { pct: 0.52, title: 'Rabobank', role: 'Data Scientist, Sanctions Tech Innovation', sub: 'Apr 2022 – Present · Utrecht', skills: ['Building value-driven business cases', 'Leading innovation projects from POC to implementation', 'Stakeholder management & strategic alignment'] },
+    ];
+
+    // Build milestone DOM
+    const milestonesContainer = document.getElementById('milestones');
+    milestones.forEach((m, i) => {
+      const el = document.createElement('div');
+      el.className = 'milestone';
+      const skillsHtml = m.skills.map(s => `<li>${s}</li>`).join('');
+      el.innerHTML = `
+        <div class="milestone-title">${m.title}</div>
+        <div class="milestone-detail">
+          <div class="milestone-role">${m.role}</div>
+          <div class="milestone-sub">${m.sub}</div>
+          <div class="milestone-skills-label">Key learnings</div>
+          <ul class="milestone-skills">${skillsHtml}</ul>
+        </div>
+      `;
+      m.el = el;
+      milestonesContainer.appendChild(el);
+    });
+
+    fetch('wildstrubel/trail_data.json')
+      .then(r => r.json())
+      .then(data => {
+        trailPoints = data;
+        initTrail();
+        trailReady = true;
+      });
+
+    function initTrail() {
+      const pts = trailPoints;
+      const lats = pts.map(p => p.lat);
+      const lons = pts.map(p => p.lon);
+      const eles = pts.map(p => p.ele);
+
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+      const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+      const minEle = Math.min(...eles), maxEle = Math.max(...eles);
+
+      // Pad the viewBox
+      const pad = 30;
+      const svgW = 500 - 2 * pad;
+      const svgH = 500 - 2 * pad;
+
+      const latRange = maxLat - minLat || 1;
+      const lonRange = maxLon - minLon || 1;
+      const scale = Math.min(svgW / lonRange, svgH / latRange);
+
+      function toSVG(p) {
+        const x = pad + (p.lon - minLon) * scale;
+        const y = pad + (maxLat - p.lat) * scale; // flip Y
+        return { x, y };
+      }
+
+      // Build path string
+      const svgPts = pts.map(toSVG);
+      let d = `M ${svgPts[0].x} ${svgPts[0].y}`;
+      for (let i = 1; i < svgPts.length; i++) {
+        d += ` L ${svgPts[i].x} ${svgPts[i].y}`;
+      }
+
+      document.getElementById('trail-bg').setAttribute('d', d);
+      document.getElementById('trail-active').setAttribute('d', d);
+
+      // Store path lengths for animation
+      const activePath = document.getElementById('trail-active');
+      const totalLength = activePath.getTotalLength();
+      activePath.style.strokeDasharray = totalLength;
+      activePath.style.strokeDashoffset = totalLength;
+
+      // Start/end labels
+      const startPt = svgPts[0];
+      const endPt = svgPts[svgPts.length - 1];
+      document.getElementById('trail-start-label').setAttribute('x', startPt.x);
+      document.getElementById('trail-start-label').setAttribute('y', startPt.y - 10);
+      document.getElementById('trail-end-label').setAttribute('x', endPt.x);
+      document.getElementById('trail-end-label').setAttribute('y', endPt.y - 10);
+
+      // Compute cumulative elevation gain
+      const cumulativeGain = [0];
+      for (let i = 1; i < eles.length; i++) {
+        const diff = eles[i] - eles[i - 1];
+        cumulativeGain.push(cumulativeGain[i - 1] + (diff > 0 ? diff : 0));
+      }
+
+      // Store for scroll updates
+      window._trailData = {
+        svgPts,
+        totalLength,
+        activePath,
+        minEle,
+        maxEle,
+        eles,
+        pts,
+        cumulativeGain
+      };
+
+      // Build elevation profile
+      buildElevationProfile(eles, minEle, maxEle);
+
+      // Place milestone markers on the trail SVG
+      milestones.forEach(m => {
+        const idx = Math.min(Math.floor(m.pct * (svgPts.length - 1)), svgPts.length - 1);
+        const pt = svgPts[idx];
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        marker.setAttribute('cx', pt.x);
+        marker.setAttribute('cy', pt.y);
+        marker.setAttribute('r', 4);
+        marker.setAttribute('fill', 'none');
+        marker.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        marker.setAttribute('stroke-width', '1');
+        document.getElementById('trail-svg').appendChild(marker);
+        m.marker = marker;
+      });
+    }
+
+    function buildElevationProfile(eles, minEle, maxEle) {
+      const w = 300, h = 80;
+      const eleRange = maxEle - minEle || 1;
+      const step = w / (eles.length - 1);
+
+      // Line path
+      let linePath = `M 0 ${h - ((eles[0] - minEle) / eleRange) * (h - 15)}`;
+      let areaPath = linePath;
+      for (let i = 1; i < eles.length; i++) {
+        const x = i * step;
+        const y = h - ((eles[i] - minEle) / eleRange) * (h - 15);
+        linePath += ` L ${x} ${y}`;
+        areaPath += ` L ${x} ${y}`;
+      }
+      areaPath += ` L ${w} ${h} L 0 ${h} Z`;
+
+      document.getElementById('elev-line').setAttribute('d', linePath);
+      document.getElementById('elev-area').setAttribute('d', areaPath);
+      document.getElementById('elev-line-active').setAttribute('d', linePath);
+      document.getElementById('elev-area-active').setAttribute('d', areaPath);
+
+      // Clip active elevation to 0 initially
+      const activeArea = document.getElementById('elev-area-active');
+      const activeLine = document.getElementById('elev-line-active');
+      activeArea.style.clipPath = 'inset(0 100% 0 0)';
+      activeLine.style.clipPath = 'inset(0 100% 0 0)';
+    }
+
+    function updateTrail() {
+      if (!trailReady || !window._trailData) return;
+
+      const rect = careerSection.getBoundingClientRect();
+      const scrollable = careerSection.offsetHeight - window.innerHeight;
+      const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+
+      const { svgPts, totalLength, activePath, minEle, maxEle, eles, pts } = window._trailData;
+
+      // Reveal trail path
+      activePath.style.strokeDashoffset = totalLength * (1 - progress);
+
+      // Move runner dot
+      const pointOnPath = activePath.getPointAtLength(totalLength * progress);
+      document.getElementById('trail-dot').setAttribute('cx', pointOnPath.x);
+      document.getElementById('trail-dot').setAttribute('cy', pointOnPath.y);
+
+      // Update stats
+      const km = (progress * TOTAL_DIST_KM).toFixed(1);
+      const eleIdx = Math.min(Math.floor(progress * (eles.length - 1)), eles.length - 1);
+      const currentGain = Math.round(window._trailData.cumulativeGain[eleIdx]);
+      document.getElementById('stat-km').textContent = km;
+      document.getElementById('stat-elev').textContent = currentGain;
+
+      // Update elevation profile clip
+      const clipPct = (1 - progress) * 100;
+      document.getElementById('elev-area-active').style.clipPath = `inset(0 ${clipPct}% 0 0)`;
+      document.getElementById('elev-line-active').style.clipPath = `inset(0 ${clipPct}% 0 0)`;
+
+      // Update milestones and skills
+      milestones.forEach((m, i) => {
+        const nextPct = i < milestones.length - 1 ? milestones[i + 1].pct : 1;
+        if (progress >= m.pct) {
+          m.el.classList.add('active');
+          if (m.marker) {
+            m.marker.setAttribute('fill', '#5a9a6a');
+            m.marker.setAttribute('stroke', '#5a9a6a');
+          }
+          // Light up skills one by one within this milestone's range
+          const skillEls = m.el.querySelectorAll('.milestone-skills li');
+          const range = nextPct - m.pct;
+          const subProgress = (progress - m.pct) / range;
+          skillEls.forEach((li, si) => {
+            const threshold = (si + 1) / (skillEls.length + 1);
+            if (subProgress >= threshold) {
+              li.classList.add('skill-active');
+            } else {
+              li.classList.remove('skill-active');
+            }
+          });
+        } else {
+          m.el.classList.remove('active');
+          m.el.querySelectorAll('.milestone-skills li').forEach(li => li.classList.remove('skill-active'));
+          if (m.marker) {
+            m.marker.setAttribute('fill', 'none');
+            m.marker.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+          }
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateFrame, { passive: true });
+
+    setCanvasSize();
+    document.getElementById('hero-overlay').classList.add('hero-visible');
+  </script>
+
+</body>
+</html>
