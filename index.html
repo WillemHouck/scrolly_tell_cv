@@ -944,6 +944,74 @@
         max-height: 60vh;
       }
     }
+
+    /* ── Finish video section ── */
+    #finish-section {
+      position: relative;
+      height: 400vh;
+    }
+
+    #finish-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #finish-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #finish-color-grade {
+      position: absolute;
+      inset: 0;
+      background: rgba(90, 70, 40, 0.15);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+
+    #finish-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(17,17,17,1) 0%,
+        rgba(17,17,17,0.6) 8%,
+        rgba(0,0,0,0.1) 30%,
+        rgba(0,0,0,0.1) 70%,
+        rgba(17,17,17,0.6) 92%,
+        rgba(17,17,17,1) 100%
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 12vh;
+      pointer-events: none;
+    }
+
+    #finish-text {
+      font-size: clamp(0.85rem, 1.6vw, 1.2rem);
+      font-weight: 300;
+      color: rgba(255,255,255,0);
+      text-align: center;
+      max-width: 600px;
+      line-height: 1.6;
+      transition: color 1.2s ease;
+    }
+
+    #finish-text.visible {
+      color: rgba(255,255,255,0.9);
+    }
   </style>
 </head>
 <body>
@@ -963,13 +1031,13 @@
   </section>
 
   <!-- Intro text -->
-  <div class="intro-section">
+  <!-- <div class="intro-section">
     <p class="intro-text">
       Like a trail run through uncharted terrain, my career has been about finding
       the best path forward — navigating obstacles, building momentum, and never
       losing sight of the finish line. Every project is a new trail to explore.
     </p>
-  </div>
+  </div> -->
 
   <!-- Education chart (scroll-driven) -->
   <section id="edu-chart-section">
@@ -1010,14 +1078,14 @@
   </div>
 
   <!-- Career Path intro -->
-  <div class="trail-intro">
+  <!-- <div class="trail-intro">
     <p class="trail-intro-text">
       Every career is a race — some stretches are uphill grinds, others are
       exhilarating descents. Follow the trail of my favourite ultra, the
       Wildstrubel in the Swiss Alps, as it maps to my professional journey.
     </p>
     <p class="trail-race-name">Wildstrubel Ultra · 69 km · 4246m elevation gain</p>
-  </div>
+  </div> -->
 
   <!-- Career Path: scroll-driven trail -->
   <section id="career-path-section">
@@ -1025,7 +1093,7 @@
       <div class="trail-map-panel">
         <div class="trail-map-inner">
           <p class="trail-map-intro">
-            Follow the trail of my favourite ultra, the Wildstrubel in the Swiss Alps, 
+            Follow the trail of my favourite race, the Wildstrubel in the Swiss Alps, 
             as it maps to my professional journey.
           </p>
           <svg id="trail-svg" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
@@ -1068,11 +1136,23 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <span class="trail-emoji">👟</span>
-    Keep running. Keep learning.
-  </footer>
+  <!-- Divider -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">⛰️</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Finish video: scroll-driven -->
+  <section id="finish-section">
+    <div id="finish-sticky">
+      <canvas id="finish-canvas"></canvas>
+      <div id="finish-color-grade"></div>
+      <div id="finish-overlay">
+        <p id="finish-text">Looking forward to a new challenge, in my career and on the trail.</p>
+      </div>
+    </div>
+  </section>
 
   <!-- Small running thumbnail that follows you -->
   <div id="running-indicator">
@@ -1177,7 +1257,7 @@
       { name: '', points: 6 },
       { name: '', points: 6 },
       { name: '', points: 6 },
-      { name: 'Thesis: Comparison of Machine Learning models for predicting football matches', points: 24, isKey: true, isThesis: true },
+      { name: 'Thesis: Comparison of ML models for football match prediction', points: 24, isKey: true, isThesis: true },
     ];
 
     const minorBlocks = [
@@ -1195,7 +1275,7 @@
       { name: 'Machine Learning', points: 6, isKey: true },
       { name: '', points: 6 },
       { name: '', points: 6, isKey: true },
-      { name: 'Thesis: Using Transfer Learning to overcome data scarcity in image recognition', points: 24, isKey: true, isThesis: true },
+      { name: 'Thesis: Overcoming data scarcity in image recognition through transfer learning', points: 24, isKey: true, isThesis: true },
     ];
 
     const allBlocks = [
@@ -1577,9 +1657,84 @@
       });
     }
 
-    window.addEventListener('scroll', updateFrame, { passive: true });
+    // ── Finish video frame sequence ──
+    const FINISH_FRAME_COUNT = 200;
+    const finishCanvas = document.getElementById('finish-canvas');
+    const finishCtx = finishCanvas.getContext('2d');
+    const finishImages = [];
+    let finishLoadedCount = 0;
+    let currentFinishFrame = 0;
+    const finishSection = document.getElementById('finish-section');
+
+    function setFinishCanvasSize() {
+      finishCanvas.width = window.innerWidth;
+      finishCanvas.height = window.innerHeight;
+    }
+
+    function drawFinishFrame(index) {
+      const img = finishImages[index];
+      if (!img || !img.complete) return;
+
+      const cw = finishCanvas.width;
+      const ch = finishCanvas.height;
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+
+      const scale = Math.max(cw / iw, ch / ih);
+      const w = iw * scale;
+      const h = ih * scale;
+      const x = (cw - w) / 2;
+      const y = (ch - h) / 2;
+
+      finishCtx.clearRect(0, 0, cw, ch);
+      finishCtx.drawImage(img, x, y, w, h);
+    }
+
+    for (let i = 1; i <= FINISH_FRAME_COUNT; i++) {
+      const img = new Image();
+      img.src = `wildstrubel/finish_frames/frame-${padNum(i)}.jpg`;
+      img.onload = () => {
+        finishLoadedCount++;
+        if (finishLoadedCount === 1) {
+          setFinishCanvasSize();
+          drawFinishFrame(0);
+        }
+      };
+      finishImages.push(img);
+    }
+
+    function updateFinishVideo() {
+      const rect = finishSection.getBoundingClientRect();
+      const scrollable = finishSection.offsetHeight - window.innerHeight;
+      const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+      const frameIndex = Math.min(Math.floor(progress * FINISH_FRAME_COUNT), FINISH_FRAME_COUNT - 1);
+
+      if (frameIndex !== currentFinishFrame) {
+        currentFinishFrame = frameIndex;
+        drawFinishFrame(currentFinishFrame);
+      }
+
+      // Show text in the last 30% of scroll
+      const finishText = document.getElementById('finish-text');
+      if (progress > 0.7) {
+        finishText.classList.add('visible');
+      } else {
+        finishText.classList.remove('visible');
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      updateFrame();
+      updateFinishVideo();
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      setFinishCanvasSize();
+      drawFinishFrame(currentFinishFrame);
+    });
 
     setCanvasSize();
+    setFinishCanvasSize();
     document.getElementById('hero-overlay').classList.add('hero-visible');
   </script>
 
